@@ -38,6 +38,47 @@ ESP8266WebServer webServer(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
+static const char PROGMEM INDEX_HTML[] = R"( 
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset=utf-8>
+      <title>WebSocket ESP8266 - REGULACIÓN DE INTENSIDAD DE UN LED</title>
+  </head>
+  <body>
+    <h1>Vista TermalCam</h1> 
+    <p>Comunicación vía WebSocket: Servidor (ESP8266) <---> Cliente</p>
+
+    
+    <input type='range' min='0' max='255' value='127' id='miValor' oninput='verValor()'>
+    <p id='valor'></p>
+    <script>
+       var x; 
+       var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
+       connection.onopen = function () {
+         connection.send('Conectado  -  ' + new Date()); 
+         verValor();
+       }
+       connection.onmessage = function (event) {
+         verValor(event.data);
+       }
+       connection.onerror = function (error) {
+         console.log('WebSocket Error!!!', error);
+       }
+       function verValor(valor) {
+         x = document.getElementById('miValor').value;
+         document.getElementById('valor').innerHTML = valor;
+         enviarValor();
+       }
+       function enviarValor(){
+         console.log('Cliente (envía): ' + x);
+         connection.send(x);
+       }
+    </script>
+  </body>
+</html>
+)";
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
   switch(type) {
@@ -79,6 +120,7 @@ void saveConfigCallback()
 void setup()
 {
   USE_SERIAL.begin(115200);
+  amg.begin();
   pinMode(PIN_AP, INPUT);
 
   //modificamos el portal
@@ -100,7 +142,7 @@ void setup()
   httpUpdateServer.setup(&webServer);
 
   // llamada a funcion readCam
-  readCam;
+  //readCam;
   //webServer.on("/", readCam);
 
   webServer.on("/all", HTTP_GET, [](){
@@ -112,7 +154,7 @@ void setup()
 
   webServer.on("/", []() {
       // send index.html
-      webServer.send(200, "text/html", "<html><head><script>var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);connection.onopen = function () {  connection.send('Connect ' + new Date()); }; connection.onerror = function (error) {    console.log('WebSocket Error ', error);};connection.onmessage = function (e) {  console.log('Server: ', e.data);};function sendRGB() {  var r = parseInt(document.getElementById('r').value).toString(16);  var g = parseInt(document.getElementById('g').value).toString(16);  var b = parseInt(document.getElementById('b').value).toString(16);  if(r.length < 2) { r = '0' + r; }   if(g.length < 2) { g = '0' + g; }   if(b.length < 2) { b = '0' + b; }   var rgb = '#'+r+g+b;    console.log('RGB: ' + rgb); connection.send(rgb); }</script></head><body>LED Control:<br/><br/>R: <input id=\"r\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>G: <input id=\"g\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>B: <input id=\"b\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/></body></html>");
+      webServer.send(200, "text/html", INDEX_HTML);
   });
 
 
@@ -173,9 +215,34 @@ void loop()
     USE_SERIAL.printf("%d Connected websocket clients ping: %d\n", i, ping);
     last_10sec = millis();
   }
+
+  String temp;
+  amg.readPixels(pixels);
+  StaticJsonDocument<200> doc;
+  JsonArray data = doc.createNestedArray("data");
+  /* for(int i=1; i<=AMG88xx_PIXEL_ARRAY_SIZE; i++){
+    
+
+    //JSON.concat(String(temp));
+    data.add(pixels[i-1]);
+    
+
+  } */
+  temp.concat("[");
+    for(int i=1; i<=AMG88xx_PIXEL_ARRAY_SIZE; i++){
+      temp.concat(pixels[i-1]);
+      if( i<AMG88xx_PIXEL_ARRAY_SIZE )temp.concat(",");
+      if( i%8 == 0 ) Serial.println();
+  }
+  temp.concat("]");
+  //serializeJson(doc, Json);
+  //USE_SERIAL.println(Json);
+  USE_SERIAL.println(temp);
+  delay(1000);
+  webSocket.broadcastTXT(temp);
 }
 
-void readCam(const char * payload, size_t length) {
+/* void readCam(const char * payload, size_t length) {
   float temp;
   amg.readPixels(pixels);
   USE_SERIAL.println("chucoco");
@@ -190,11 +257,12 @@ void readCam(const char * payload, size_t length) {
 
   }
   serializeJson(doc, Json);
-  /* for(int i=0; i<AMG88xx_PIXEL_ARRAY_SIZE; i++){
+  for(int i=0; i<AMG88xx_PIXEL_ARRAY_SIZE; i++){
       JSON.concat(String(pixels[i]));
       if(i==AMG88xx_PIXEL_ARRAY_SIZE-1)
       JSON.concat(String("}"));
-  } */
+  } 
   USE_SERIAL.println(Json);
   webSocket.sendTXT(Json.c_str(), Json.length() + 1);
 }
+ */
