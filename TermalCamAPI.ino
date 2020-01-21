@@ -51,29 +51,108 @@ static const char PROGMEM INDEX_HTML[] = R"(
 
     
     <input type='range' min='0' max='255' value='127' id='miValor' oninput='verValor()'>
-    <p id='valor'></p>
+    <input type='button' value='Genera una tabla' onclick='tabla()'>
+    <div id='bo'></div> 
     <script>
-       var x; 
+       var x;
+       let data, dataFloat, color=[], coma = ','; 
        var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
-       connection.onopen = function () {
-         connection.send('Conectado  -  ' + new Date()); 
-         verValor();
-       }
-       connection.onmessage = function (event) {
-         verValor(event.data);
-       }
+        connection.onopen = function () {
+          connection.send('Conectado  -  ' + new Date()); 
+          verValor();
+        }
+
+      function dividirCadena(cadenaADividir,separador) {
+        let arrayDeCadenas = cadenaADividir.split(separador);
+        arrayDeCadenas.map(Number);
+        for (var i=0; i < arrayDeCadenas.length; i++) {
+          //console.log(arrayDeCadenas[i] + " / ");
+
+          if(arrayDeCadenas[i]<29){
+              color.push('#0000FF'); // Blue
+            }
+            else if((arrayDeCadenas[i]>=29)&&(arrayDeCadenas[i]<30)){
+              color.push('#008000');  // Green
+            }
+            else if((arrayDeCadenas[i]>=30)&&(arrayDeCadenas[i]<31)){
+              color.push('#FFFF00');   // Yellow
+            }
+            else if((arrayDeCadenas[i]>=31)&&(arrayDeCadenas[i]<33)){
+              color.push('#FFFFFF');  // White
+            }
+            else{
+              color.push('#FF0000');           //Red
+            }
+            console.log(color[i] + " ** ");
+            console.log(arrayDeCadenas[i] + " / ");
+        }
+      }
+      connection.onmessage = function (event) {
+        
+        dividirCadena(event.data,coma)
+        
+        
+        
+      }
        connection.onerror = function (error) {
          console.log('WebSocket Error!!!', error);
        }
        function verValor(valor) {
          x = document.getElementById('miValor').value;
-         document.getElementById('valor').innerHTML = valor;
+         
+         
          enviarValor();
        }
        function enviarValor(){
-         console.log('Cliente (envía): ' + x);
-         connection.send(x);
+         console.log('Servidor (envía): ' + data);
+         connection.send(data);
        }
+      let tabla = () => {
+       
+        // Obtener la referencia del elemento body
+        var body = document.getElementsByTagName("body")[0];
+        // Crea un elemento <table> y un elemento <tbody>
+        var tabla   = document.createElement('tabla');
+        var tblBody = document.createElement('tbody');
+ 
+        // Crea las celdas
+        for (var i = 0; i < 8; i++) {
+          // Crea las hileras de la tabla
+          var hilera = document.createElement('tr');
+ 
+          for (let j = 0; j < 8; j++) {
+            // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+            // texto sea el contenido de <td>, ubica el elemento <td> al final
+            // de la hilera de la tabla
+            var celda = document.createElement('td');
+            var textoCelda = document.createTextNode(i+','+j);
+            celda.appendChild(textoCelda);
+            
+            
+            celda.setAttribute("padding", "10")
+            celda.setAttribute("border", "30")
+            celda.setAttribute("margin", "10")
+            
+            
+            hilera.appendChild(celda);
+            hilera.setAttribute("padding", "5")
+            hilera.setAttribute("border", "10")
+            hilera.setAttribute("margin", "5")
+            hilera.style.fontSize = '70px';
+          }
+ 
+          // agrega la hilera al final de la tabla (al final del elemento tblbody)
+          tblBody.appendChild(hilera);
+        }
+ 
+        // posiciona el <tbody> debajo del elemento <table>
+        tabla.appendChild(tblBody);
+        // appends <table> into <body>
+        body.appendChild(tabla);
+        // modifica el atributo "border" de la tabla y lo fija a "2";
+        tabla.setAttribute("border", "2");
+      } 
+
     </script>
   </body>
 </html>
@@ -228,13 +307,13 @@ void loop()
     
 
   } */
-  temp.concat("[");
+  //temp.concat("[");
     for(int i=1; i<=AMG88xx_PIXEL_ARRAY_SIZE; i++){
       temp.concat(pixels[i-1]);
       if( i<AMG88xx_PIXEL_ARRAY_SIZE )temp.concat(",");
       if( i%8 == 0 ) Serial.println();
   }
-  temp.concat("]");
+  //temp.concat("]");
   //serializeJson(doc, Json);
   //USE_SERIAL.println(Json);
   USE_SERIAL.println(temp);
