@@ -43,61 +43,233 @@ static const char PROGMEM INDEX_HTML[] = R"(
 <html>
   <head>
       <meta charset=utf-8>
-      <title>WebSocket ESP8266 - REGULACIÓN DE INTENSIDAD DE UN LED</title>
+      <title>WebSocket ESP8266 - TermalCam</title>
+      <!-- Compiled and minified CSS -->
+      <link rel="stylesheet" href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'>
+    </head>
   </head>
-  <body>
-    <h1>Vista TermalCam</h1> 
-    <p>Comunicación vía WebSocket: Servidor (ESP8266) <---> Cliente</p>
+  <header class='top'  >
+      <h1>Vista TermalCam</h1> 
+      <p>Comunicación vía WebSocket: Servidor (ESP8266) <---> Cliente</p>
 
     
-    <input type='range' min='0' max='255' value='127' id='miValor' oninput='verValor()'>
-    <input type='button' value='Genera una tabla' onclick='tabla()'>
-    <div id='bo'></div> 
+    
+      <input type='button' value='Ver camara' onclick='tabla()'>
+  </header>
+  <body class='brown darken-1'>
+    
+    
+    <section id='SectionBody' class='center'  ></section>
     <script>
        var x;
-       let data, dataFloat, color=[], coma = ','; 
+       let arrayDeCadenas , color=[], coma = ','; 
        var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
         connection.onopen = function () {
           connection.send('Conectado  -  ' + new Date()); 
-          verValor();
+         /*  verValor(); */
         }
 
       function dividirCadena(cadenaADividir,separador) {
-        let arrayDeCadenas = cadenaADividir.split(separador);
+        arrayDeCadenas = cadenaADividir.split(separador);
         arrayDeCadenas.map(Number);
         for (var i=0; i < arrayDeCadenas.length; i++) {
           //console.log(arrayDeCadenas[i] + " / ");
 
-          if(arrayDeCadenas[i]<29){
-              color.push('#0000FF'); // Blue
+          if(arrayDeCadenas[i]<21){
+              color.splice(i, 1, '#0000FF'); // Blue
             }
-            else if((arrayDeCadenas[i]>=29)&&(arrayDeCadenas[i]<30)){
-              color.push('#008000');  // Green
+            else if((arrayDeCadenas[i]>=21)&&(arrayDeCadenas[i]<22)){
+              color.splice(i, 1, '#F9A805');  // Orange
             }
-            else if((arrayDeCadenas[i]>=30)&&(arrayDeCadenas[i]<31)){
-              color.push('#FFFF00');   // Yellow
+            else if((arrayDeCadenas[i]>=22)&&(arrayDeCadenas[i]<24)){
+              color.splice(i, 1, '#008000');  // Green
             }
-            else if((arrayDeCadenas[i]>=31)&&(arrayDeCadenas[i]<33)){
-              color.push('#FFFFFF');  // White
+            else if((arrayDeCadenas[i]>=24)&&(arrayDeCadenas[i]<26)){
+              color.splice(i, 1, '#FFFF00');   // Yellow
             }
-            else{
-              color.push('#FF0000');           //Red
+            else if((arrayDeCadenas[i]>=26)&&(arrayDeCadenas[i]<32)){
+              color.splice(i, 1, '#F9A705');  // Orange
             }
-            console.log(color[i] + " ** ");
-            console.log(arrayDeCadenas[i] + " / ");
+            else if((arrayDeCadenas[i]>32)){
+              color.splice(i, 1, '#FF0000');  // Red
+            }
+              
+            
+            /* console.log(color[i] + " ** ");
+            console.log(arrayDeCadenas[i] + " / "); */
         }
       }
       connection.onmessage = function (event) {
-        
+        tabla()
         dividirCadena(event.data,coma)
         
+        rellenarTabla()
         
-        
+      }
+
+      let rellenarTabla = () => {
+        let hileras = document.getElementsByTagName("tr")
+        let j=0;
+        for(let hilera of hileras){
+          /* console.log(hilera) */
+          let hileraRemplazo = document.createElement("tr")
+          let parentHilera = hilera.parentNode;
+          switch (j){
+            case 0:
+              for(let i=7; i > -1; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+              }
+             
+            break;
+            case 1:
+              for(let i=15; i > 7; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+                
+            
+              }
+            break;
+            case 2:
+              for(let i=23; i > 15; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';                
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }              
+            break;
+            case 3:
+              for(let i=31; i > 23; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 4:
+              for(let i=39; i > 31; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 5:
+              for(let i=47; i > 39; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 6:
+              for(let i = 55; i > 47; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }              
+            break;
+            case 7:
+              for(let i = 63; i > 55; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+          }
+          
+          j++
+          parentHilera.replaceChild(hileraRemplazo,hilera) //remplazo de columna con la columna nueva  **realizar codigo para crear td**
+        }
       }
        connection.onerror = function (error) {
          console.log('WebSocket Error!!!', error);
        }
-       function verValor(valor) {
+       /* function verValor(valor) {
          x = document.getElementById('miValor').value;
          
          
@@ -106,13 +278,14 @@ static const char PROGMEM INDEX_HTML[] = R"(
        function enviarValor(){
          console.log('Servidor (envía): ' + data);
          connection.send(data);
-       }
+       } */
       let tabla = () => {
        
         // Obtener la referencia del elemento body
-        var body = document.getElementsByTagName("body")[0];
+        var body = document.getElementsByTagName('Section')[0];
         // Crea un elemento <table> y un elemento <tbody>
         var tabla   = document.createElement('tabla');
+        tabla.setAttribute("name", "tabla")
         var tblBody = document.createElement('tbody');
  
         // Crea las celdas
@@ -129,16 +302,13 @@ static const char PROGMEM INDEX_HTML[] = R"(
             celda.appendChild(textoCelda);
             
             
-            celda.setAttribute("padding", "10")
-            celda.setAttribute("border", "30")
-            celda.setAttribute("margin", "10")
+            celda.setAttribute("padding", "2")
+            celda.setAttribute("border", "5")
+            celda.setAttribute("margin", "2")
+            celda.style.fontSize = '20px';
             
             
             hilera.appendChild(celda);
-            hilera.setAttribute("padding", "5")
-            hilera.setAttribute("border", "10")
-            hilera.setAttribute("margin", "5")
-            hilera.style.fontSize = '70px';
           }
  
           // agrega la hilera al final de la tabla (al final del elemento tblbody)
@@ -154,6 +324,11 @@ static const char PROGMEM INDEX_HTML[] = R"(
       } 
 
     </script>
+    
+
+    <!-- Compiled and minified JavaScript -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js'></script>
+            
   </body>
 </html>
 )";
@@ -297,8 +472,8 @@ void loop()
 
   String temp;
   amg.readPixels(pixels);
-  StaticJsonDocument<200> doc;
-  JsonArray data = doc.createNestedArray("data");
+  /* StaticJsonDocument<200> doc;
+  JsonArray data = doc.createNestedArray("data"); */
   /* for(int i=1; i<=AMG88xx_PIXEL_ARRAY_SIZE; i++){
     
 
@@ -316,8 +491,7 @@ void loop()
   //temp.concat("]");
   //serializeJson(doc, Json);
   //USE_SERIAL.println(Json);
-  USE_SERIAL.println(temp);
-  delay(1000);
+  delay(200);
   webSocket.broadcastTXT(temp);
 }
 
