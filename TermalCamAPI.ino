@@ -38,7 +38,7 @@ ESP8266WebServer webServer(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdateServer;
 
-static const char PROGMEM INDEX_HTML[] = R"( 
+static const char PROGMEM Index_HTML_8x8[] = R"( 
 <!DOCTYPE html>
 <html>
   <head>
@@ -54,13 +54,29 @@ static const char PROGMEM INDEX_HTML[] = R"(
 
     
     
-      <input type='button' value='Ver camara' onclick='tabla()'>
+      
   </header>
-  <body class='brown darken-1'>
+  <body class='brown darken-1 '>
     
     
-    <section id='SectionBody' class='center'  ></section>
+    <div id='' class="container grey darken-4"  >
+      <div id='' class="row center-align black"  >
+        <div class="card center-align col s10 m8">
+          <Body-Section class="" pai>
+            
+          </Body-Section>
+          <div class="card-content">
+          <span class="card-title activator grey-text text-darken-4">Online<i class="fa fa-eye-slash right" ></i></span>
+          </div>
+          <div class="card-reveal">
+            <span class="card-title  grey-text text-darken-4">Offline<i class="fa fa-eye right" ></i></span>
+            <p>Termal cam is offline.</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
+      
        var x;
        let arrayDeCadenas , color=[], coma = ','; 
        var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
@@ -70,7 +86,7 @@ static const char PROGMEM INDEX_HTML[] = R"(
         }
 
       function dividirCadena(cadenaADividir,separador) {
-        arrayDeCadenas = cadenaADividir.split(separador);
+        arrayDeCadenas = cadenaADividir.split(separador); 
         arrayDeCadenas.map(Number);
         for (var i=0; i < arrayDeCadenas.length; i++) {
           //console.log(arrayDeCadenas[i] + " / ");
@@ -106,7 +122,6 @@ static const char PROGMEM INDEX_HTML[] = R"(
         rellenarTabla()
         
       }
-
       let rellenarTabla = () => {
         let hileras = document.getElementsByTagName("tr")
         let j=0;
@@ -282,10 +297,10 @@ static const char PROGMEM INDEX_HTML[] = R"(
       let tabla = () => {
        
         // Obtener la referencia del elemento body
-        var body = document.getElementsByTagName('Section')[0];
+        var body = document.getElementsByTagName('Body-Section')[0];
         // Crea un elemento <table> y un elemento <tbody>
         var tabla   = document.createElement('tabla');
-        tabla.setAttribute("name", "tabla")
+        tabla.setAttribute("name", "tabla");
         var tblBody = document.createElement('tbody');
  
         // Crea las celdas
@@ -298,7 +313,7 @@ static const char PROGMEM INDEX_HTML[] = R"(
             // texto sea el contenido de <td>, ubica el elemento <td> al final
             // de la hilera de la tabla
             var celda = document.createElement('td');
-            var textoCelda = document.createTextNode(i+','+j);
+            var textoCelda = document.createTextNode(' , ');
             celda.appendChild(textoCelda);
             
             
@@ -328,7 +343,318 @@ static const char PROGMEM INDEX_HTML[] = R"(
 
     <!-- Compiled and minified JavaScript -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js'></script>
+    <!-- font awesome -->
+    <script src='https://kit.fontawesome.com/8ee530645c.js' crossorigin='anonymous'></script>        
+  </body>
+</html>
+)";
+static const char PROGMEM Index_HTML_16x16[] = R"( 
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset=utf-8>
+      <title>WebSocket ESP8266 - TermalCam</title>
+      <!-- Compiled and minified CSS -->
+      <link rel="stylesheet" href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'>
+    </head>
+  </head>
+  <header class='top'  >
+      <h1>Vista TermalCam</h1> 
+      <p>Comunicación vía WebSocket: Servidor (ESP8266) <---> Cliente</p>
+
+    
+    
+      
+  </header>
+  <body class='brown darken-1 '>
+    
+    
+    <div id='' class="container grey darken-4"  >
+      <div id='' class="row center-align black"  >
+        <div class="card center-align col s10 m8">
+          <Body-Section class="" pai>
             
+          </Body-Section>
+          <div class="card-content">
+          <span class="card-title activator grey-text text-darken-4">Online<i class="fa fa-eye-slash right" ></i></span>
+          </div>
+          <div class="card-reveal">
+            <span class="card-title  grey-text text-darken-4">Offline<i class="fa fa-eye right" ></i></span>
+            <p>Termal cam is offline.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      
+       var x;
+       let arrayDeCadenas , color=[], coma = ','; 
+       var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
+        connection.onopen = function () {
+          connection.send('Conectado  -  ' + new Date()); 
+         /*  verValor(); */
+        }
+
+      function dividirCadena(cadenaADividir,separador) {
+        arrayDeCadenas = cadenaADividir.split(separador); 
+        arrayDeCadenas.map(Number);
+        for (var i=0; i < arrayDeCadenas.length; i++) {
+          //console.log(arrayDeCadenas[i] + " / ");
+
+          if(arrayDeCadenas[i]<21){
+              color.splice(i, 1, '#0000FF'); // Blue
+            }
+            else if((arrayDeCadenas[i]>=21)&&(arrayDeCadenas[i]<22)){
+              color.splice(i, 1, '#F9A805');  // Orange
+            }
+            else if((arrayDeCadenas[i]>=22)&&(arrayDeCadenas[i]<24)){
+              color.splice(i, 1, '#008000');  // Green
+            }
+            else if((arrayDeCadenas[i]>=24)&&(arrayDeCadenas[i]<26)){
+              color.splice(i, 1, '#FFFF00');   // Yellow
+            }
+            else if((arrayDeCadenas[i]>=26)&&(arrayDeCadenas[i]<32)){
+              color.splice(i, 1, '#F9A705');  // Orange
+            }
+            else if((arrayDeCadenas[i]>32)){
+              color.splice(i, 1, '#FF0000');  // Red
+            }
+              
+            
+            /* console.log(color[i] + " ** ");
+            console.log(arrayDeCadenas[i] + " / "); */
+        }
+      }
+      connection.onmessage = function (event) {
+        tabla()
+        dividirCadena(event.data,coma)
+        
+        rellenarTabla()
+        
+      }
+      let rellenarTabla = () => {
+        let hileras = document.getElementsByTagName("tr")
+        let j=0;
+        for(let hilera of hileras){
+          /* console.log(hilera) */
+          let hileraRemplazo = document.createElement("tr")
+          let parentHilera = hilera.parentNode;
+          switch (j){
+            case 0:
+              for(let i=7; i > -1; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+              }
+             
+            break;
+            case 1:
+              for(let i=15; i > 7; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+                
+            
+              }
+            break;
+            case 2:
+              for(let i=23; i > 15; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';                
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }              
+            break;
+            case 3:
+              for(let i=31; i > 23; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 4:
+              for(let i=39; i > 31; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 5:
+              for(let i=47; i > 39; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+            case 6:
+              for(let i = 55; i > 47; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }              
+            break;
+            case 7:
+              for(let i = 63; i > 55; i--){
+                /* console.log(i) */
+                let celdaRemplazo = document.createElement("td");
+                var textoCelda = document.createTextNode(arrayDeCadenas[i]);
+
+                celdaRemplazo.appendChild(textoCelda);
+                celdaRemplazo.setAttribute("padding", "10")
+                celdaRemplazo.setAttribute("border", "30")
+                celdaRemplazo.setAttribute("margin", "10")
+                celdaRemplazo.style.fontSize = '20px';
+                celdaRemplazo.style.backgroundColor = color[i];
+
+
+                hileraRemplazo.appendChild(celdaRemplazo);
+            
+              }
+            break;
+          }
+          
+          j++
+          parentHilera.replaceChild(hileraRemplazo,hilera) //remplazo de columna con la columna nueva  **realizar codigo para crear td**
+        }
+      }
+       connection.onerror = function (error) {
+         console.log('WebSocket Error!!!', error);
+       }
+       /* function verValor(valor) {
+         x = document.getElementById('miValor').value;
+         
+         
+         enviarValor();
+       }
+       function enviarValor(){
+         console.log('Servidor (envía): ' + data);
+         connection.send(data);
+       } */
+      let tabla = () => {
+       
+        // Obtener la referencia del elemento body
+        var body = document.getElementsByTagName('Body-Section')[0];
+        // Crea un elemento <table> y un elemento <tbody>
+        var tabla   = document.createElement('tabla');
+        tabla.setAttribute("name", "tabla");
+        var tblBody = document.createElement('tbody');
+ 
+        // Crea las celdas
+        for (var i = 0; i < 8; i++) {
+          // Crea las hileras de la tabla
+          var hilera = document.createElement('tr');
+ 
+          for (let j = 0; j < 8; j++) {
+            // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+            // texto sea el contenido de <td>, ubica el elemento <td> al final
+            // de la hilera de la tabla
+            var celda = document.createElement('td');
+            var textoCelda = document.createTextNode(' , ');
+            celda.appendChild(textoCelda);
+            
+            
+            celda.setAttribute("padding", "2")
+            celda.setAttribute("border", "5")
+            celda.setAttribute("margin", "2")
+            celda.style.fontSize = '20px';
+            
+            
+            hilera.appendChild(celda);
+          }
+ 
+          // agrega la hilera al final de la tabla (al final del elemento tblbody)
+          tblBody.appendChild(hilera);
+        }
+ 
+        // posiciona el <tbody> debajo del elemento <table>
+        tabla.appendChild(tblBody);
+        // appends <table> into <body>
+        body.appendChild(tabla);
+        // modifica el atributo "border" de la tabla y lo fija a "2";
+        tabla.setAttribute("border", "2");
+      } 
+
+    </script>
+    
+
+    <!-- Compiled and minified JavaScript -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js'></script>
+    <!-- font awesome -->
+    <script src='https://kit.fontawesome.com/8ee530645c.js' crossorigin='anonymous'></script>        
   </body>
 </html>
 )";
@@ -408,7 +734,12 @@ void setup()
 
   webServer.on("/", []() {
       // send index.html
-      webServer.send(200, "text/html", INDEX_HTML);
+      webServer.send(200, "text/html", Index_HTML_8x8);
+  });
+
+  webServer.on("/VistaPro", []() {
+      // send index.html
+      webServer.send(200, "text/html", Index_HTML_16x16);
   });
 
 
